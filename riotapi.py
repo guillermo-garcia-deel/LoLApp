@@ -26,15 +26,22 @@ def season_info(season,summoner_id, doThis):
 	url = "https://na.api.pvp.net/api/lol/na/v1.3/stats/by-summoner/"+str(summoner_id)+"/ranked?season="+season+"&api_key=" + key
 	json_obj = urllib2.urlopen(url)
 	data = json.load(json_obj)
+	count = 1
 	total = 0
-	
-
 
 	for item in data['champions']:
 			champ_name = str(id_to_name(item['id']))
 			if str(champ_name) == '0':
 				champ_name = 'All'
-			print str(namelist[doThis]) + " by " + champ_name + ": " + str(item['stats'][keylist[doThis]]) 
+
+			if champ_name != 'All':	
+				print str(count) + ". " + str(namelist[doThis]) + " by " + champ_name + ": " + str(item['stats'][keylist[doThis]]) 
+				count += 1
+			if champ_name == 'All':
+				total = item['stats'][keylist[doThis]]
+	print str(namelist[doThis]) + " by All: " + str(total)
+
+
 		
 
 
