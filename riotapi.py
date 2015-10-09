@@ -3,8 +3,22 @@ import urllib2
 from lists import keylist
 from lists import namelist
 from lists import menu
+import plotly.plotly as py
+from plotly.graph_objs import *
 
 key = '9c810c33-25b4-4857-b974-5576d0eefc38'
+dataValues = []
+champNames = []
+total_count = 1
+
+def graph_info():
+	data = Data([
+	    Bar(
+	        x= champNames,
+	        y= dataValues
+	   )
+	])
+	plot_url = py.plot(data, filename='basic-bar')
 
 #Get summoner ID by name
 def get_summoner_id(summoner,region):
@@ -46,22 +60,25 @@ def season_info(season,summoner_id, doThis,region):
 	url = "https://"+str(region)+".api.pvp.net/api/lol/"+str(region)+"/v1.3/stats/by-summoner/"+str(summoner_id)+"/ranked?season="+season+"&api_key=" + key
 	json_obj = urllib2.urlopen(url)
 	data = json.load(json_obj)
-	count = 1
 	total = 0
+	count = 0
 
 
 	for item in data['champions']:
 			champ_name = str(id_to_name(item['id']))
+			champNames.append(champ_name)
 			if str(champ_name) == '0':
 				champ_name = 'All'
 
 			if champ_name != 'All':	
+				thisData = str(item['stats'][keylist[doThis]]) 
+				dataValues.append(thisData)
 				print str(count) + ". " + str(namelist[doThis]) + " by " + champ_name + ": " + str(item['stats'][keylist[doThis]]) 
 				count += 1
 			if champ_name == 'All':
 				total = item['stats'][keylist[doThis]]
 	print str(namelist[doThis]) + " by All: " + str(total)
-
+	total_count = count
 		
 
 
@@ -81,6 +98,7 @@ def id_to_name(champ_id):
 
 
 running = True
+graph = False
 print('Type in \'q\' or \'Q\' to exit the program.\n\n')
 summoner = raw_input("Enter summoner name: ")
 
@@ -98,6 +116,10 @@ while running == True:
 	if season.lower() == 'q':
 		running = False
 		break
+	"""
+	graphDecision = raw_input("Create Graph? (yes or no) : ")
+	if graphDecision.lower() == 'yes':
+		graph = True"""
 
 	champOrAll = raw_input('Enter the name of a Champion to find his stats or \'all\' to display stats of all champions: ')
 	if champOrAll.lower() == 'q':
@@ -112,14 +134,19 @@ while running == True:
 		break
 
 
-	#file_name = raw_input("All your information will be dumped in a text file, pick a name for it: ")
-
 	summoner_id = get_summoner_id(summoner.lower(),region)
 
 	if champOrAll.lower() == 'all':
 		season_info(season,summoner_id, doThis, region)
 	elif champOrAll != 'all':
 		season_info_single(season,summoner_id, doThis,champOrAll, region)
+	
+
+	graph_info()
+	plot_url = None
+
+
+
 
 
 
